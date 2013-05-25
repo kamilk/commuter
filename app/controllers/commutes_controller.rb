@@ -1,4 +1,9 @@
 class CommutesController < ApplicationController
-  def index
+  before_filter :authenticate_user!
+
+  def new
+  end
+
+  def create
   end
 end

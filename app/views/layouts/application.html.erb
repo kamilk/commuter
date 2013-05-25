@@ -10,14 +10,16 @@
 
   <%= render 'layouts/navbar' %>
 
-  <% unless notice.blank? %>
-    <p class="notice"><%= notice %></p>
-  <% end %>
-  <% unless alert.blank? %>
-    <p class="alert"><%= alert %></p>
-  <% end %>
+  <div class="container">
+    <% unless notice.blank? %>
+      <p class="alert alert-success"><%= notice %></p>
+    <% end %>
+    <% unless alert.blank? %>
+      <p class="alert"><%= alert %></p>
+    <% end %>
 
-  <%= yield %>
+    <%= yield %>
+  </div>
 
 </body>
 </html>
