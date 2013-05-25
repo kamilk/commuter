@@ -86,7 +86,7 @@ class Participation
 
   getJsonData: () ->
     return null unless this.checkbox.is(':checked')
-    return {id: this.commuter.id}
+    return {user_id: this.commuter.id}
 
 commuteForm = new CommuteForm()
 $(document).ready(commuteForm.init)
