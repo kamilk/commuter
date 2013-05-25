@@ -1,5 +1,6 @@
 <h1>24 may 2013 (Friday)</h1>
-<form class="form-horizontal ">
+<%= form_tag commutes_path, method: :post, name: 'new_commutes', class: 'form-horizontal' do %>
+  <input type="hidden" name="data"/>
   <div id="cars-container">
     <div class="commute-car-entry">
       <div class="control-group">
@@ -20,4 +21,5 @@
       <a href="#" id="commute-add-car-button" style="display: block">Add another car</a>
     </div>
   </div>
-</form>
+<% end %>
+

@@ -5,5 +5,7 @@ class CommutesController < ApplicationController
   end
 
   def create
+    logger.debug params[:data]
+    redirect_to root_path
   end
 end

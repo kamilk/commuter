@@ -8,6 +8,11 @@ class CommuteForm
     this.commuters = []
 
   init: () =>
+    this.form = $(document.forms['new_commutes'])
+    this.form.submit(this.onFormSubmit)
+
+    this.dataField = this.form.find('[name=data]')
+
     this.carContainer = $('#cars-container')
 
     initialEntry = $('.commute-car-entry')
@@ -16,7 +21,7 @@ class CommuteForm
     this.addCarButton = $('#commute-add-car-button')
     this.addCarButton.click(this.onAddCarClicked)
 
-    this.carEntries.push(new CarEntry(this, initialEntry)) 
+    this.carEntries.push(new CarEntry(this, initialEntry))
     $.ajax(
       url: '/commuters',
       dataType: 'json'
@@ -26,9 +31,9 @@ class CommuteForm
     newEntry = this.entryPrototype.clone()
     this.carContainer.append(newEntry)
     this.carEntries.push(new CarEntry(this, newEntry))
-  
+
   onCommutersFetched: (data) =>
-    this.commuters = data 
+    this.commuters = data
     for car in this.carEntries
       car.updateCommuters()
 
@@ -39,6 +44,9 @@ class CommuteForm
     for car in this.carEntries
       data.push(car.getJsonData())
     return data
+
+  onFormSubmit: () =>
+    this.dataField.val(JSON.stringify(this.getJsonData()))
 
 class CarEntry
   constructor: (parent, rootElement) ->
@@ -62,7 +70,7 @@ class CarEntry
       continue unless data?
       participationData.push(data)
 
-    {
+    return {
       driver: parseInt( this.driverSelect.val() )
       participations: participationData
     }
@@ -78,8 +86,8 @@ class Participation
 
   getJsonData: () ->
     return null unless this.checkbox.is(':checked')
-    return {id: this.commuter.id} 
+    return {id: this.commuter.id}
 
-commuteForm = new CommuteForm();
-$(document).ready(commuteForm.init) 
+commuteForm = new CommuteForm()
+$(document).ready(commuteForm.init)
 window.commuteForm = commuteForm
