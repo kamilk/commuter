@@ -1,0 +1,5 @@
+<% @users.each do |user| %>
+  <td>
+    <%= day_summary.get_driver_for(user).nil? ? '0': '1' %>
+  </td>
+<% end %>

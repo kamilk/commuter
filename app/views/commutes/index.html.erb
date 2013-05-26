@@ -1,0 +1,15 @@
+<table class="table">
+  <tr>
+    <th rowspan="2">Date</th>
+    <th rowspan="2">To</th>
+    <th colspan="3">Attendance</th>
+  </tr>
+  <tr>
+    <% @users.each do |user | %>
+      <td><%= user.name %></td>
+    <% end %>
+  </tr>
+  <% @day_summaries.each do |summary| %>
+    <%= render 'commutes/commute_row', day_summary: summary %>
+  <% end %>
+</table>
