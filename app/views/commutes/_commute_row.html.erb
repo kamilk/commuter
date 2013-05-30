@@ -1,5 +1,7 @@
 <tr>
-  <td rowspan="2"><%= day_summary.date %></td>
+  <td rowspan="2">
+  <%= link_to day_summary.date, edit_commute_path(day_summary.date) %>
+  </td>
   <td>Gliwice</td>
   <%= render 'commutes/one_direction_cells', day_summary: day_summary %>
 </tr>

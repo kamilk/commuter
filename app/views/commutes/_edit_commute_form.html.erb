@@ -1,6 +1,6 @@
 <h1><%= @date.strftime('%d %B %Y (%A)') %></h1>
-<%= form_tag commutes_path,
-  method: :post,
+<%= form_tag commute_path(@date),
+  method: :put,
   name: 'new_commutes',
   class: 'form-horizontal',
   'data-date' => @date do %>

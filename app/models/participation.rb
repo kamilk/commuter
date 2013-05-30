@@ -3,4 +3,6 @@ class Participation < ActiveRecord::Base
 
   belongs_to :user
   belongs_to :commute
+
+  validates :user_id, uniqueness: { scope: :commute_id }
 end
