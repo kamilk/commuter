@@ -1,6 +1,15 @@
 class CommutesController < ApplicationController
   before_filter :authenticate_user!
 
+  def show
+    date = Date.parse(params[:id])
+    @commutes = Commute.where(['date = ?', date])
+
+    respond_to do |format|
+      format.json { render json: convert_commutes_to_json(@commutes) }
+    end
+  end
+
   def index
     @commutes = Commute.all  
     @users = User.all
@@ -8,6 +17,7 @@ class CommutesController < ApplicationController
   end
 
   def new
+    @date = Date.today
   end
 
   def create
@@ -25,5 +35,25 @@ class CommutesController < ApplicationController
       end
     end
     redirect_to root_path
+  end
+
+  def edit
+    @date = Date.parse(params[:id])
+  end
+
+  private
+
+  def convert_commutes_to_json(commutes)
+    commutes.map do |commute|
+      result = {
+        id: commute.id,
+        driver: commute.driver_id,
+        participations: []
+      }
+      commute.participations.each do |participation|
+        result[:participations] << { id: participation.id, user: participation.user_id }
+      end
+      result
+    end
   end
 end

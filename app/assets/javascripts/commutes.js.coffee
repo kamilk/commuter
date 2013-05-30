@@ -1,11 +1,9 @@
-# Place all the behaviors and hooks related to the matching controller here.
-# All this logic will automatically be available in application.js.
-# You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
-
 class CommuteForm
   constructor: () ->
     this.carEntries = []
     this.commuters = []
+
+  # Public Methods
 
   init: () =>
     this.form = $(document.forms['new_commutes'])
@@ -21,23 +19,29 @@ class CommuteForm
     this.addCarButton = $('#commute-add-car-button')
     this.addCarButton.click(this.onAddCarClicked)
 
+    this.dataFetcher = new DataFetcher
+    this.dataFetcher.fetchData(this.form.data('date'), this.onDataFetched)
+
     this.carEntries.push(new CarEntry(this, initialEntry))
-    $.ajax(
-      url: '/commuters',
-      dataType: 'json'
-    ).done(this.onCommutersFetched)
+
+  getCommuters: () -> this.dataFetcher.getCommuters()
+
+  # Private Methods
 
   onAddCarClicked: () =>
-    newEntry = this.entryPrototype.clone()
-    this.carContainer.append(newEntry)
-    this.carEntries.push(new CarEntry(this, newEntry))
+    this.addCarEntry()
 
-  onCommutersFetched: (data) =>
-    this.commuters = data
+  addCarEntry: () ->
+    newEntryElement = this.entryPrototype.clone()
+    this.carContainer.append(newEntryElement)
+    newCarEntry = new CarEntry(this, newEntryElement)
+    this.carEntries.push(newCarEntry)
+    return newCarEntry
+
+  removeAllCarEntries: () ->
     for car in this.carEntries
-      car.updateCommuters()
-
-  getCommuters: () -> this.commuters
+      car.destroy()
+    this.carEntries = []
 
   getJsonData: () ->
     data = []
@@ -47,14 +51,69 @@ class CommuteForm
 
   onFormSubmit: () =>
     this.dataField.val(JSON.stringify(this.getJsonData()))
+  
+  onDataFetched: () =>
+    commutes = this.dataFetcher.getCommutes()
+    if commutes? && commutes.length > 0
+      this.removeAllCarEntries()
+      for commute in commutes
+        car = this.addCarEntry()
+        car.updateCommuters()
+        car.populate(commute)
+    else
+      car.updateCommuters() for car in this.carEntries
+
+class DataFetcher
+  constructor: () ->
+    this.commutersFetched = false
+    this.commutesFetched = false
+  
+  # Public Methods
+
+  fetchData: (date, callback) ->
+    this.callback = callback
+    $.ajax(
+      url: '/commuters',
+      dataType: 'json'
+    ).done(this.onCommutersFetched)
+
+    $.ajax(
+      url: '/commutes/' + date,
+      dataType: 'json'
+    ).done(this.onCommutesFetched)
+  
+
+  getCommutes: () -> this.commutes
+
+  getCommuters: () -> this.commuters
+
+  # Private Methods
+
+  onCommutersFetched: (data) =>
+    this.commutersFetched = true
+    this.commuters = data
+    this.notifyIfAllFetched()
+
+  onCommutesFetched: (data) =>
+    this.commutesFetched = true
+    this.commutes = data
+    this.notifyIfAllFetched()
+  
+  notifyIfAllFetched: () ->
+    if this.commutersFetched && this.commutesFetched
+      this.callback()
 
 class CarEntry
   constructor: (parent, rootElement) ->
     this.parent = parent
+    this.rootElement = rootElement
     this.participations = []
     this.driverSelect = rootElement.find('.driver-select')
     this.commutersContainer = rootElement.find('.commuters-container')
-    this.updateCommuters()
+
+  # Public Methods
+
+  destroy: () -> this.rootElement.remove()
 
   updateCommuters: () ->
     for commuter in this.parent.getCommuters()
@@ -75,6 +134,18 @@ class CarEntry
       participations: participationData
     }
 
+  populate: (commute) ->
+    this.driverSelect.val(commute.driver)
+    for participationData in commute.participations
+      participation = this.getParticipationForUser(participationData.user)
+      participation.check()
+    
+  # Private Methods
+
+  getParticipationForUser: (userId) ->
+    for participation in this.participations
+      return participation if participation.getUserId() == userId
+
 class Participation
   constructor: (commuter) ->
     this.commuter = commuter
@@ -82,7 +153,13 @@ class Participation
     this.checkbox = $('<input type="checkbox">')
     this.rootElement.append(this.checkbox).append(document.createTextNode(commuter.name))
 
+  # Public Methods
+
   getElement: () -> this.rootElement
+
+  getUserId: () -> this.commuter.id
+
+  check: () -> this.checkbox.prop('checked', true)
 
   getJsonData: () ->
     return null unless this.checkbox.is(':checked')
