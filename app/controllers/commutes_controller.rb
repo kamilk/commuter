@@ -6,7 +6,7 @@ class CommutesController < ApplicationController
     @commutes = Commute.where(['date = ?', date])
 
     respond_to do |format|
-      format.json { render json: convert_commutes_to_json(@commutes) }
+      format.json { render json: @commutes.map(&:to_json) }
     end
   end
 
@@ -43,21 +43,5 @@ class CommutesController < ApplicationController
       end
     end
     redirect_to root_path
-  end
-
-  private
-
-  def convert_commutes_to_json(commutes)
-    commutes.map do |commute|
-      result = {
-        id: commute.id,
-        driver: commute.driver_id,
-        participations: []
-      }
-      commute.participations.each do |participation|
-        result[:participations] << { id: participation.id, user: participation.user_id }
-      end
-      result
-    end
   end
 end

@@ -18,6 +18,18 @@ class Commute < ActiveRecord::Base
     participations.exists?(['user_id = ?', user.id])
   end
 
+  def to_json
+    result = {
+      id: id,
+      driver: driver_id,
+      participations: []
+    }
+    participations.each do |participation|
+      result[:participations] << { id: participation.id, user: participation.user_id }
+    end
+    result
+  end
+
   def set_participations(participation_data)
     participations_to_destroy = []
     participations.each do |participation|
