@@ -1,7 +1,7 @@
 Commuter::Application.routes.draw do
   devise_for :users
 
-  root to: 'commutes#new'
+  root to: 'commutes#index'
 
   resources :commuters, only: [:index]
   resources :commutes

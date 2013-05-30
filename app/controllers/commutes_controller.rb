@@ -23,10 +23,11 @@ class CommutesController < ApplicationController
   def create
     data = ActiveSupport::JSON.decode(params['data'])
     Commute.transaction do
-      data.each do |commute_data|
+      date = Date.parse(data['date'])
+      data['commutes'].each do |commute_data|
         commute = Commute.new
         commute.driver = User.find(commute_data['driver'])
-        commute.date = Date.civil(2013, 05, 24)
+        commute.date = date
         commute_data['participations'].each do |participation_data|
           participation = commute.participations.build
           participation.user = User.find(participation_data['user_id'])

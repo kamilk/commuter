@@ -19,8 +19,10 @@ class CommuteForm
     this.addCarButton = $('#commute-add-car-button')
     this.addCarButton.click(this.onAddCarClicked)
 
+    this.date = this.form.data('date')
+
     this.dataFetcher = new DataFetcher
-    this.dataFetcher.fetchData(this.form.data('date'), this.onDataFetched)
+    this.dataFetcher.fetchData(this.date, this.onDataFetched)
 
     this.carEntries.push(new CarEntry(this, initialEntry))
 
@@ -35,6 +37,7 @@ class CommuteForm
     newEntryElement = this.entryPrototype.clone()
     this.carContainer.append(newEntryElement)
     newCarEntry = new CarEntry(this, newEntryElement)
+    newCarEntry.updateCommuters()
     this.carEntries.push(newCarEntry)
     return newCarEntry
 
@@ -44,9 +47,11 @@ class CommuteForm
     this.carEntries = []
 
   getJsonData: () ->
-    data = []
+    data = {}
+    data.date = this.date
+    data.commutes = []
     for car in this.carEntries
-      data.push(car.getJsonData())
+      data.commutes.push(car.getJsonData())
     return data
 
   onFormSubmit: () =>
@@ -58,7 +63,6 @@ class CommuteForm
       this.removeAllCarEntries()
       for commute in commutes
         car = this.addCarEntry()
-        car.updateCommuters()
         car.populate(commute)
     else
       car.updateCommuters() for car in this.carEntries
