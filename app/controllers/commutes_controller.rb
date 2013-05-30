@@ -11,7 +11,7 @@ class CommutesController < ApplicationController
   end
 
   def index
-    @commutes = Commute.all  
+    @commutes = Commute.all
     @users = User.all
     @day_summaries = DaySummary.for_date_range(Date.civil(2012,1,1), Date.civil(2014,1,1))
   end
