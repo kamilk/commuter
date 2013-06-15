@@ -4,8 +4,11 @@ Commuter::Application.routes.draw do
   root to: 'commutes#index'
 
   resources :commuters, only: [:index]
+
   resources :commutes
   get '/commutes/:year/:month', to: 'commutes#index'
+
+  resources :fuel_reports
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
