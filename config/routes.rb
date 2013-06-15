@@ -5,6 +5,7 @@ Commuter::Application.routes.draw do
 
   resources :commuters, only: [:index]
   resources :commutes
+  get '/commutes/:year/:month', to: 'commutes#index'
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

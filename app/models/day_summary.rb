@@ -1,4 +1,8 @@
 class DaySummary
+  def self.for_month(year, month)
+    for_date_range(Date.civil(year, month, 1), Date.civil(year, month, 1).end_of_month)
+  end
+
   def self.for_date_range(start_date, end_date)
     commutes_by_date = Commute.where(['date >= ? AND date <= ?', start_date, end_date])
       .group_by(&:date)

@@ -11,8 +11,14 @@ class CommutesController < ApplicationController
   end
 
   def index
+    @year = params['year'].to_i
+    @year = Date.today.year unless @year > 0
+
+    @month = params['month'].to_i
+    @month = Date.today.month unless @month > 0
+
     @users = User.all
-    @day_summaries = DaySummary.for_date_range(Date.civil(2013,5,1), Date.civil(2013,7,1))
+    @day_summaries = DaySummary.for_month(@year, @month)
   end
 
   def new
