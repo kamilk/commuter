@@ -4,14 +4,17 @@ class DaySummary
       .group_by(&:date)
 
     summaries = []
-    commutes_by_date.each do |date, commutes|
-      summaries << DaySummary.new(commutes, date)
+    (start_date..end_date).each do |date|
+      commutes = commutes_by_date[date]
+      unless date.weekend? && commutes.blank? 
+        summaries << DaySummary.new(commutes, date)
+      end
     end
     summaries.sort {|s1, s2| s1.date <=> s2.date}
   end
 
   def initialize(commutes, date)
-    @commutes = commutes 
+    @commutes = commutes || []
     @date = date
   end
 
