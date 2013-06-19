@@ -11,4 +11,8 @@ class User < ActiveRecord::Base
   
   has_many :participations
   has_many :fuel_reports
+  
+  def to_s
+    name
+  end
 end

@@ -1,0 +1,16 @@
+<table class='table'>
+  <tr>
+    <th>From</th>
+    <th>To</th>
+    <th>User</th>
+    <th>Price per km</th>
+  </tr>
+  <% @reports.each do |report| %>
+    <tr>
+      <td><%= report.from %></td>
+      <td><%= report.to %></td>
+      <td><%= report.user %></td>
+      <td><%= report.price_per_km%></td>
+    </tr>
+  <% end %>
+</table>
