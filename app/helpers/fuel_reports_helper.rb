@@ -6,4 +6,8 @@ module FuelReportsHelper
       return 'error'
     end
   end
+
+  def report_can_be_edited?(report)
+    report.user == current_user
+  end
 end

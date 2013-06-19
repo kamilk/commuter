@@ -1,9 +1,12 @@
+<%= link_to 'New', new_fuel_report_path %>
+
 <table class='table'>
   <tr>
     <th>From</th>
     <th>To</th>
     <th>User</th>
     <th>Price per km</th>
+    <th></th>
   </tr>
   <% @reports.each do |report| %>
     <tr>
@@ -11,6 +14,11 @@
       <td><%= report.to %></td>
       <td><%= report.user %></td>
       <td><%= report.price_per_km%></td>
+      <td>
+        <% if report_can_be_edited? report %>
+          <%= link_to 'Edit', edit_fuel_report_path(report) %>
+        <% end %>
+      </td>
     </tr>
   <% end %>
 </table>
