@@ -1,0 +1,28 @@
+<%= form_for report, html: {class: 'form-horizontal'} do |f| %>
+  <div class="control-group <%= class_for_form_field report, :from %>">
+    <label class="control-label">From:</label>
+    <div class="controls">
+      <%= f.text_field :from, class: 'datepicker-field' %>
+      <%= render 'shared/field_validation', record: report, field: :from %>
+    </div>
+  </div>
+  <div class="control-group <%= class_for_form_field report, :to %>">
+    <label class="control-label">To:</label>
+    <div class="controls">
+      <%= f.text_field :to, class: 'datepicker-field' %>
+      <%= render 'shared/field_validation', record: report, field: :to %>
+    </div>
+  </div>
+  <div class="control-group <%= class_for_form_field report, :price_per_km %>">
+    <label class="control-label">Price per 1 kilometer:</label>
+    <div class="controls">
+      <%= f.text_field :price_per_km %>
+      <%= render 'shared/field_validation', record: report, field: :price_per_km %>
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="controls">
+      <%= f.submit class: 'btn' %>
+    </div>
+  </div>
+<% end %>
