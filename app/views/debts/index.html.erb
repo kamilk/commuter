@@ -1,0 +1,22 @@
+<table class='table'>
+  <tr>
+    <th></th>
+    <% @users.each do |user| %>
+      <th><%= user %></th>
+    <% end %>
+  </tr>
+  <% @users.each do |user_owing| %>
+    <tr>
+      <td><%= user_owing %></td>
+      <% @users.each do |user_owed| %>
+        <td>
+          <% if user_owing == user_owed %>
+            &mdash;
+          <% else %>
+            <%= @debts[user_owing].owed_to(user_owed) %>
+          <% end %>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>

@@ -3,6 +3,7 @@ class Commute < ActiveRecord::Base
 
   belongs_to :driver, class_name: User
   has_many :participations
+  has_many :users, through: :participations
 
   validates :driver_id, uniqueness: { scope: :date }
 
@@ -48,5 +49,9 @@ class Commute < ActiveRecord::Base
         participations.build user_id: user_id
       end
     end
+  end
+
+  def number_of_people
+    participations.count
   end
 end

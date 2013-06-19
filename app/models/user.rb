@@ -10,6 +10,7 @@ class User < ActiveRecord::Base
   # attr_accessible :title, :body
   
   has_many :participations
+  has_many :commutes, through: :participations
   has_many :fuel_reports
   
   def to_s
