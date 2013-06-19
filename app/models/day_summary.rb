@@ -1,3 +1,5 @@
+require 'date_extensions'
+
 class DaySummary
   def self.for_month(year, month)
     for_date_range(Date.civil(year, month, 1), Date.civil(year, month, 1).end_of_month)
