@@ -3,7 +3,7 @@ class FuelReportsController < ApplicationController
   before_filter :user_must_own_report, only: [:edit, :update]
 
   def index
-    @reports = FuelReport.all
+    @reports = FuelReport.order(:from_date)
   end
 
   def new
