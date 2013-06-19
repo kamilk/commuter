@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130615112339) do
+ActiveRecord::Schema.define(:version => 20130619171036) do
 
   create_table "commutes", :force => true do |t|
     t.integer  "driver_id"
@@ -24,8 +24,8 @@ ActiveRecord::Schema.define(:version => 20130615112339) do
 
   create_table "fuel_reports", :force => true do |t|
     t.integer  "user_id"
-    t.date     "from"
-    t.date     "to"
+    t.date     "from_date"
+    t.date     "to_date"
     t.decimal  "price_per_km"
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
