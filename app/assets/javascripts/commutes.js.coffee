@@ -169,6 +169,7 @@ class Participation
     return null unless this.checkbox.is(':checked')
     return {user_id: this.commuter.id}
 
-commuteForm = new CommuteForm()
-$(document).ready(commuteForm.init)
-window.commuteForm = commuteForm
+window.initCommuteForm = () ->
+  commuteForm = new CommuteForm()
+  $(document).ready(commuteForm.init)
+  window.commuteForm = commuteForm
