@@ -1,6 +1,6 @@
 <table class='table'>
   <tr>
-    <th></th>
+    <th>Who owes \ Whom</th>
     <% @users.each do |user| %>
       <th><%= user %></th>
     <% end %>
@@ -14,9 +14,18 @@
             &mdash;
           <% else %>
             <%= @debts[user_owing].owed_to(user_owed) %>
+            <% if @debts[user_owing].uncertain?(user_owed) %>
+              <span
+                  title="Some data required to calculate the debt is missing."
+                  class="with-tooltip debt-uncertain-mark">
+                (?)
+              </span>
+            <% end %>
           <% end %>
         </td>
       <% end %>
     </tr>
   <% end %>
 </table>
+
+<%= javascript_tag 'enable_tooltips()' %>
