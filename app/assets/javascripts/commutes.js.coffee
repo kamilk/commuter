@@ -1,76 +1,123 @@
 class CommuteForm
   constructor: () ->
-    this.carEntries = []
-    this.commuters = []
+    this.cars = ko.observableArray()
+    this.people = ko.observableArray()
+    this.finalData = ko.observable('')
 
-  # Public Methods
-
-  init: () =>
     this.form = $(document.forms['new_commutes'])
-    this.form.submit(this.onFormSubmit)
-
-    this.dataField = this.form.find('[name=data]')
-
-    this.carContainer = $('#cars-container')
-
-    initialEntry = $('.commute-car-entry')
-    this.entryPrototype = initialEntry.clone()
-
-    this.addCarButton = $('#commute-add-car-button')
-    this.addCarButton.click(this.onAddCarClicked)
-
     this.date = this.form.data('date')
-
     this.dataFetcher = new DataFetcher
     this.dataFetcher.fetchData(this.date, this.onDataFetched)
 
-    this.carEntries.push(new CarEntry(this, initialEntry))
+  getUserById: (id) ->
+    for user in this.people()
+      return user if user.id() == id
 
-  getCommuters: () -> this.dataFetcher.getCommuters()
+  # Event Handlers
+
+  onFormSubmit: () ->
+    this.finalData(JSON.stringify(this.getJsonData()))
+    return true
+
+  addCarEntry: () ->
+    carEntry = new CarEntry(this)
+    this.cars.push(carEntry)
+    return carEntry
 
   # Private Methods
 
-  onAddCarClicked: () =>
-    this.addCarEntry()
+  onDataFetched: () =>
+    this.populateUsers()
+    this.populateCommutes()
 
-  addCarEntry: () ->
-    newEntryElement = this.entryPrototype.clone()
-    this.carContainer.append(newEntryElement)
-    newCarEntry = new CarEntry(this, newEntryElement)
-    newCarEntry.updateCommuters()
-    this.carEntries.push(newCarEntry)
-    return newCarEntry
+  populateUsers: () ->
+    users = this.dataFetcher.getUsers()
+    return unless users?
+    this.people.push(new Person(user.id, user.name)) for user in users
 
-  removeAllCarEntries: () ->
-    for car in this.carEntries
-      car.destroy()
-    this.carEntries = []
+  populateCommutes: () ->
+    this.cars.removeAll()
+
+    commutes = this.dataFetcher.getCommutes()
+    if !commutes? || commutes.length == 0
+      this.addCarEntry()
+      return
+
+    for commute in commutes
+      car = this.addCarEntry()
+      car.populate(commute)
 
   getJsonData: () ->
     data = {}
     data.date = this.date
     data.commutes = []
-    for car in this.carEntries
+    for car in this.cars()
       data.commutes.push(car.getJsonData())
     return data
+    
+class CarEntry
+  constructor: (parent) ->
+    this.parent = parent
+    this.driver = ko.observable()
+    this.participations = ko.observableArray()
 
-  onFormSubmit: () =>
-    this.dataField.val(JSON.stringify(this.getJsonData()))
-  
-  onDataFetched: () =>
-    commutes = this.dataFetcher.getCommutes()
-    if commutes? && commutes.length > 0
-      this.removeAllCarEntries()
-      for commute in commutes
-        car = this.addCarEntry()
-        car.populate(commute)
-    else
-      car.updateCommuters() for car in this.carEntries
+    for person in this.parent.people()
+      this.participations.push(new Participation(this, person))
+
+  # Public Methods
+
+  populate: (commute) ->
+    this.driver(this.parent.getUserById(commute.driver))
+    for participationData in commute.participations
+      participation = this.getParticipationByUserId(participationData.user)
+      participation.didGo(true)
+
+  getJsonData: () ->
+    participationData = []
+    for participation in this.participations()
+      data = participation.getJsonData()
+      continue unless data?
+      participationData.push(data)
+    return {
+      driver: parseInt( this.driver().id() )
+      participations: participationData
+    }
+
+  # Private Methods
+
+  getParticipationByUserId: (id) ->
+    for participation in this.participations()
+      return participation if participation.user.id() == id
+
+class Participation
+  constructor: (carEntry, user) ->
+    this.carEntry = carEntry
+    this.user = user
+    this.didGoValue = ko.observable(false)
+    this.isNotDriver = ko.computed(() =>
+      !this.carEntry.driver()? || this.carEntry.driver().id != this.user.id
+    )
+    this.didGo = ko.computed(
+      read: () => this.didGoValue() || !this.isNotDriver()
+      write: (value) => this.didGoValue(value)
+    )
+
+  # Public Methods
+
+  getJsonData: () ->
+    return null unless this.didGo()
+    return {user_id: this.user.id()}
+
+class Person
+  constructor: (id, name) ->
+    this.id = ko.observable(id)
+    this.name = ko.observable(name)
 
 class DataFetcher
   constructor: () ->
     this.commutersFetched = false
     this.commutesFetched = false
+    this.usersFetched = false
   
   # Public Methods
 
@@ -85,11 +132,17 @@ class DataFetcher
       url: '/commutes/' + date,
       dataType: 'json'
     ).done(this.onCommutesFetched)
-  
+
+    $.ajax(
+      url: '/users'
+      dataType: 'json'
+    ).done(this.onUsersFetched)
 
   getCommutes: () -> this.commutes
 
   getCommuters: () -> this.commuters
+
+  getUsers: () -> this.users
 
   # Private Methods
 
@@ -102,74 +155,17 @@ class DataFetcher
     this.commutesFetched = true
     this.commutes = data
     this.notifyIfAllFetched()
+
+  onUsersFetched: (data) =>
+    this.usersFetched = true
+    this.users = data
+    this.notifyIfAllFetched()
   
   notifyIfAllFetched: () ->
-    if this.commutersFetched && this.commutesFetched
+    if this.commutersFetched && this.commutesFetched && this.usersFetched
       this.callback()
-
-class CarEntry
-  constructor: (parent, rootElement) ->
-    this.parent = parent
-    this.rootElement = rootElement
-    this.participations = []
-    this.driverSelect = rootElement.find('.driver-select')
-    this.commutersContainer = rootElement.find('.commuters-container')
-
-  # Public Methods
-
-  destroy: () -> this.rootElement.remove()
-
-  updateCommuters: () ->
-    for commuter in this.parent.getCommuters()
-      this.driverSelect.append( $('<option></option>').attr('value', commuter.id).text(commuter.name))
-      participation = new Participation(commuter)
-      this.participations.push(participation)
-      this.commutersContainer.append(participation.getElement())
-
-  getJsonData: () ->
-    participationData = []
-    for participation in this.participations
-      data = participation.getJsonData()
-      continue unless data?
-      participationData.push(data)
-
-    return {
-      driver: parseInt( this.driverSelect.val() )
-      participations: participationData
-    }
-
-  populate: (commute) ->
-    this.driverSelect.val(commute.driver)
-    for participationData in commute.participations
-      participation = this.getParticipationForUser(participationData.user)
-      participation.check()
-    
-  # Private Methods
-
-  getParticipationForUser: (userId) ->
-    for participation in this.participations
-      return participation if participation.getUserId() == userId
-
-class Participation
-  constructor: (commuter) ->
-    this.commuter = commuter
-    this.rootElement = $('<label class="checkbox"></label>')
-    this.checkbox = $('<input type="checkbox">')
-    this.rootElement.append(this.checkbox).append(document.createTextNode(commuter.name))
-
-  # Public Methods
-
-  getElement: () -> this.rootElement
-
-  getUserId: () -> this.commuter.id
-
-  check: () -> this.checkbox.prop('checked', true)
-
-  getJsonData: () ->
-    return null unless this.checkbox.is(':checked')
-    return {user_id: this.commuter.id}
 
 window.initCommuteForm = () ->
   commuteForm = new CommuteForm()
-  $(document).ready(commuteForm.init)
+  ko.applyBindings(commuteForm)
   window.commuteForm = commuteForm
