@@ -1,7 +1,7 @@
 class CommuteForm
   constructor: () ->
     this.cars = ko.observableArray()
-    this.people = ko.observableArray()
+    this.users = ko.observableArray()
     this.finalData = ko.observable('')
 
     this.form = $(document.forms['new_commutes'])
@@ -10,7 +10,7 @@ class CommuteForm
     this.dataFetcher.fetchData(this.date, this.onDataFetched)
 
   getUserById: (id) ->
-    for user in this.people()
+    for user in this.users()
       return user if user.id() == id
 
   # Event Handlers
@@ -31,9 +31,9 @@ class CommuteForm
     this.populateCommutes()
 
   populateUsers: () ->
-    users = this.dataFetcher.getUsers()
+    users = this.dataFetcher.getCommuters()
     return unless users?
-    this.people.push(new Person(user.id, user.name)) for user in users
+    this.users.push(new User(user.id, user.name)) for user in users
 
   populateCommutes: () ->
     this.cars.removeAll()
@@ -61,8 +61,8 @@ class CarEntry
     this.driver = ko.observable()
     this.participations = ko.observableArray()
 
-    for person in this.parent.people()
-      this.participations.push(new Participation(this, person))
+    for user in this.parent.users()
+      this.participations.push(new Participation(this, user))
 
   # Public Methods
 
@@ -108,7 +108,7 @@ class Participation
     return null unless this.didGo()
     return {user_id: this.user.id()}
 
-class Person
+class User
   constructor: (id, name) ->
     this.id = ko.observable(id)
     this.name = ko.observable(name)
@@ -117,7 +117,6 @@ class DataFetcher
   constructor: () ->
     this.commutersFetched = false
     this.commutesFetched = false
-    this.usersFetched = false
   
   # Public Methods
 
@@ -133,16 +132,9 @@ class DataFetcher
       dataType: 'json'
     ).done(this.onCommutesFetched)
 
-    $.ajax(
-      url: '/users'
-      dataType: 'json'
-    ).done(this.onUsersFetched)
-
   getCommutes: () -> this.commutes
 
   getCommuters: () -> this.commuters
-
-  getUsers: () -> this.users
 
   # Private Methods
 
@@ -162,7 +154,7 @@ class DataFetcher
     this.notifyIfAllFetched()
   
   notifyIfAllFetched: () ->
-    if this.commutersFetched && this.commutesFetched && this.usersFetched
+    if this.commutersFetched && this.commutesFetched
       this.callback()
 
 window.initCommuteForm = () ->
