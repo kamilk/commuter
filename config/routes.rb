@@ -10,7 +10,9 @@ Commuter::Application.routes.draw do
 
   resources :fuel_reports
 
-  resources :debts, only: [:index]
+  resources :debts, only: [:index] do
+    get '/:owing/:owed', to: 'debts#show', on: :collection, as: :user
+  end
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

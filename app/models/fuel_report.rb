@@ -15,4 +15,8 @@ class FuelReport < ActiveRecord::Base
   def applies_to?(commute)
     commute.driver == user && commute.date >= from_date && commute.date <= to_date
   end
+
+  def cost_of_commute_per_person(commute)
+    60 * price_per_km / commute.number_of_people
+  end
 end

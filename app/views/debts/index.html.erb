@@ -13,8 +13,9 @@
           <% if user_owing == user_owed %>
             &mdash;
           <% else %>
-            <%= @debts[user_owing].owed_to(user_owed) %>
-            <% if @debts[user_owing].uncertain?(user_owed) %>
+            <%= link_to @debts[user_owing][user_owed].amount_non_negative,
+              user_debts_path(user_owing.id, user_owed.id) %>
+            <% if !@debts[user_owing][user_owed].certain? %>
               <span
                   title="Some data required to calculate the debt is missing."
                   class="with-tooltip debt-uncertain-mark">

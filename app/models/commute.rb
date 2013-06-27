@@ -11,6 +11,11 @@ class Commute < ActiveRecord::Base
     where(['date = ? AND driver_id = ?', date, driver_id]).first
   end
 
+  def self.by_driver_and_participant(user1, user2)
+    user1.commutes.where(['driver_id = ?', user2.id])
+      .concat(user2.commutes.where(['driver_id = ?', user1.id]))
+  end
+
   def to_param
     date
   end
