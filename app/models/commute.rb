@@ -2,7 +2,7 @@ class Commute < ActiveRecord::Base
   attr_accessible :date, :driver_id
 
   belongs_to :driver, class_name: User
-  has_many :participations
+  has_many :participations, dependent: :delete_all
   has_many :users, through: :participations
 
   validates :driver_id, uniqueness: { scope: :date }

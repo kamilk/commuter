@@ -7,21 +7,20 @@
   'data-bind' => "submit: onFormSubmit" do %>
   <input type="hidden" name="data" data-bind="value: finalData"/>
   <div data-bind="foreach: cars">
-    <div>
-      <div class="control-group">
-        <label class="control-label">Who drove?</label>
-        <div class="controls">
-          <select class="driver-select" name="driver" data-bind="options: $root.users, value: driver, optionsText: 'name'"></select>
-        </div>
+    <div class="control-group">
+      <label class="control-label">Who drove?</label>
+      <div class="controls">
+        <select class="driver-select" name="driver" data-bind="options: $root.users, value: driver, optionsText: 'name'"></select>
+        <a href="#" data-bind="click: $root.removeCar">Remove</a>
       </div>
-      <div class="control-group">
-        <label class="control-label">Who else went?</label>
-        <div class="controls" data-bind="foreach: participations">
-          <label class="checkbox">
-            <input type="checkbox" data-bind="checked: didGo, enable: isNotDriver">
-            <span data-bind="text: user.name"></span>
-          </label>
-        </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label">Who else went?</label>
+      <div class="controls" data-bind="foreach: participations">
+        <label class="checkbox">
+          <input type="checkbox" data-bind="checked: didGo, enable: isNotDriver">
+          <span data-bind="text: user.name"></span>
+        </label>
       </div>
     </div>
   </div>

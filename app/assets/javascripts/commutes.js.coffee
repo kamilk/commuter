@@ -24,6 +24,9 @@ class CommuteForm
     this.cars.push(carEntry)
     return carEntry
 
+  removeCar: (car) =>
+    this.cars.destroy(car)
+
   # Private Methods
 
   onDataFetched: () =>
@@ -73,21 +76,28 @@ class CarEntry
       participation.didGo(true)
 
   getJsonData: () ->
-    participationData = []
-    for participation in this.participations()
-      data = participation.getJsonData()
-      continue unless data?
-      participationData.push(data)
-    return {
+    result = {
       driver: parseInt( this.driver().id() )
-      participations: participationData
     }
+    if this._destroy
+      result.destroy = true
+    else
+      result.participations = this.getParticipationData()
+    return result
 
   # Private Methods
 
   getParticipationByUserId: (id) ->
     for participation in this.participations()
       return participation if participation.user.id() == id
+
+  getParticipationData: () ->
+    participationData = []
+    for participation in this.participations()
+      data = participation.getJsonData()
+      continue unless data?
+      participationData.push(data)
+    return participationData
 
 class Participation
   constructor: (carEntry, user) ->
