@@ -63,9 +63,16 @@ class CarEntry
     this.parent = parent
     this.driver = ko.observable()
     this.participations = ko.observableArray()
+    this.advancedModeEnabled = ko.observable(false)
 
     for user in this.parent.users()
       this.participations.push(new Participation(this, user))
+
+  # Event Handlers
+
+  toggleMode: () ->
+    this.advancedModeEnabled(!this.advancedModeEnabled())
+    p.switchMode(this.advancedModeEnabled()) for p in this.participations()
 
   # Public Methods
 
@@ -73,7 +80,7 @@ class CarEntry
     this.driver(this.parent.getUserById(commute.driver))
     for participationData in commute.participations
       participation = this.getParticipationByUserId(participationData.user)
-      participation.didGo(true)
+      participation.populate(participationData)
 
   getJsonData: () ->
     result = {
@@ -103,20 +110,61 @@ class Participation
   constructor: (carEntry, user) ->
     this.carEntry = carEntry
     this.user = user
-    this.didGoValue = ko.observable(false)
-    this.isNotDriver = ko.computed(() =>
-      !this.carEntry.driver()? || this.carEntry.driver().id != this.user.id
+    this.isDriver = ko.computed(() =>
+      this.carEntry.driver()? && this.carEntry.driver().id == this.user.id
     )
-    this.didGo = ko.computed(
-      read: () => this.didGoValue() || !this.isNotDriver()
-      write: (value) => this.didGoValue(value)
-    )
+    this.isNotDriver = ko.computed(() => !this.isDriver())
+
+    this.controller = ko.observable(new ParticipationAdvanced(this))
+#    this.didGoTo   = ko.observable().extend(blockedRead: {blocker: this.isDriver})
+#    this.didGoFrom = ko.observable().extend(blockedRead: {blocker: this.isDriver})
+#
+#    this.didGo     = ko.computed(
+#      read: () => this.didGoTo() || this.didGoFrom()
+#      write: (value) =>
+#        this.didGoTo(value)
+#        this.didGoFrom(value)
+#    ).extend(blockedRead: {blocker: this.isDriver})
 
   # Public Methods
 
+  populate: (data) ->
+    if data.went_to != data.went_from
+      this.switchMode(true)
+    this.controller().didGoTo(data.went_to)
+    this.controller().didGoFrom(data.went_from)
+    
+  switchMode: (advanced) ->
+    newController = if advanced
+      new ParticipationAdvanced(this)
+    else
+      new ParticipationSimple(this)
+    newController.didGo(this.controller().didGo())
+    this.controller(newController)
+
   getJsonData: () ->
-    return null unless this.didGo()
-    return {user_id: this.user.id()}
+    return null unless this.controller().didGo()
+    return {
+      user_id: this.user.id()
+      went_to: this.controller().didGoTo()
+      went_from: this.controller().didGoFrom()
+    }
+
+class ParticipationSimple
+  constructor: (participation) ->
+    this.didGo = ko.observable(false).extend(blockedRead: {blocker: participation.isDriver})
+    this.didGoTo = this.didGoFrom = this.didGo
+
+class ParticipationAdvanced
+  constructor: (participation) ->
+    this.didGoTo = ko.observable(false).extend(blockedRead: {blocker: participation.isDriver})
+    this.didGoFrom = ko.observable(false).extend(blockedRead: {blocker: participation.isDriver})
+    this.didGo     = ko.computed(
+      read: () => this.didGoTo() || this.didGoFrom()
+      write: (value) =>
+        this.didGoTo(value)
+        this.didGoFrom(value)
+    ).extend(blockedRead: {blocker: participation.isDriver})
 
 class User
   constructor: (id, name) ->
@@ -168,6 +216,12 @@ class DataFetcher
       this.callback()
 
 window.initCommuteForm = () ->
+  ko.extenders.blockedRead = (target, options) ->
+    ko.computed(
+      read: () -> target() || options.blocker()
+      write: (value) -> target(value)
+    )
+
   commuteForm = new CommuteForm()
-  ko.applyBindings(commuteForm)
   window.commuteForm = commuteForm
+  ko.applyBindings(commuteForm)

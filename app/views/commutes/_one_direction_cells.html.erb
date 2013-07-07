@@ -1,6 +1,6 @@
 <% @users.each do |user| %>
   <td
-    <% unless day_summary.get_driver_for(user).nil? %>
+    <% if day_summary.user_went?(user, direction) %>
       style='background-color: <%= day_summary.get_driver_for(user).colour %>'
     <% end %>
   >

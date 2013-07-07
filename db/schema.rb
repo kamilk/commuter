@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130619171036) do
+ActiveRecord::Schema.define(:version => 20130629205939) do
 
   create_table "commutes", :force => true do |t|
     t.integer  "driver_id"
@@ -34,8 +34,10 @@ ActiveRecord::Schema.define(:version => 20130619171036) do
   create_table "participations", :force => true do |t|
     t.integer  "user_id"
     t.integer  "commute_id"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",                   :null => false
+    t.datetime "updated_at",                   :null => false
+    t.boolean  "went_to",    :default => true
+    t.boolean  "went_from",  :default => true
   end
 
   add_index "participations", ["commute_id"], :name => "index_participations_on_commute_id"

@@ -3,9 +3,9 @@
   <%= link_to day_summary.date, edit_commute_path(day_summary.date) %>
   </td>
   <td>Gliwice</td>
-  <%= render 'commutes/one_direction_cells', day_summary: day_summary %>
+  <%= render 'commutes/one_direction_cells', day_summary: day_summary, direction: :to %>
 </tr>
 <tr>
   <td>Katowice</td>
-  <%= render 'commutes/one_direction_cells', day_summary: day_summary%>
+  <%= render 'commutes/one_direction_cells', day_summary: day_summary, direction: :from %>
 </tr>

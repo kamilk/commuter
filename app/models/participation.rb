@@ -1,5 +1,5 @@
 class Participation < ActiveRecord::Base
-  attr_accessible :commute_id, :user_id
+  attr_accessible :commute_id, :user_id, :went_to, :went_from
 
   belongs_to :user
   belongs_to :commute

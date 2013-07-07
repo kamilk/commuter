@@ -20,8 +20,17 @@ class Commute < ActiveRecord::Base
     date
   end
 
-  def user_went?(user)
-    participations.exists?(['user_id = ?', user.id])
+  def user_went?(user, direction = nil)
+    participation = participations.find_by_user_id(user.id)
+    if participation.nil?
+      return false
+    elsif direction.nil?
+      return true
+    elsif direction == :to
+      return participation.went_to
+    else
+      return participation.went_from
+    end
   end
 
   def to_json
@@ -31,7 +40,12 @@ class Commute < ActiveRecord::Base
       participations: []
     }
     participations.each do |participation|
-      result[:participations] << { id: participation.id, user: participation.user_id }
+      result[:participations] << {
+        id: participation.id,
+        user: participation.user_id,
+        went_to: participation.went_to,
+        went_from: participation.went_from
+      }
     end
     result
   end
@@ -50,9 +64,12 @@ class Commute < ActiveRecord::Base
 
     participation_data.each do |participation_entry|
       user_id = participation_entry['user_id']
-      unless participations.exists?(['user_id = ?', user_id])
-        participations.build user_id: user_id
+      participation = participations.find_by_user_id(user_id)
+      if participation.nil?
+        participation = participations.build user_id: user_id
       end
+      participation.went_to = participation_entry['went_to']
+      participation.went_from = participation_entry['went_from']
     end
   end
 
