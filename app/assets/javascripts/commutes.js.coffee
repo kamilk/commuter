@@ -71,11 +71,10 @@ class CarEntry
   # Event Handlers
 
   toggleMode: () ->
-    switchMode(!this.advancedModeEnabled())
+    this.switchMode(!this.advancedModeEnabled())
 
-  switchMode: (advanced) ->
-    this.advancedModeEnabled(advanced)
-    p.switchMode(this.advancedModeEnabled()) for p in this.participations()
+  getTemplateNameForParticipation: (participation) =>
+    participation.getTemplateName()
 
   # Public Methods
 
@@ -94,6 +93,10 @@ class CarEntry
     else
       result.participations = this.getParticipationData()
     return result
+
+  switchMode: (advanced) ->
+    this.advancedModeEnabled(advanced)
+    p.switchMode(this.advancedModeEnabled()) for p in this.participations()
 
   # Private Methods
 
@@ -144,10 +147,15 @@ class Participation
       went_from: this.controller().didGoFrom()
     }
 
+  getTemplateName: () ->
+    this.controller().getTemplateName()
+
 class ParticipationSimple
   constructor: (participation) ->
     this.didGo = ko.observable(false).extend(blockedRead: {blocker: participation.isDriver})
     this.didGoTo = this.didGoFrom = this.didGo
+
+  getTemplateName: () -> 'participation-simple-template'
 
 class ParticipationAdvanced
   constructor: (participation) ->
@@ -159,6 +167,8 @@ class ParticipationAdvanced
         this.didGoTo(value)
         this.didGoFrom(value)
     ).extend(blockedRead: {blocker: participation.isDriver})
+
+  getTemplateName: () -> 'participation-advanced-template'
 
 class User
   constructor: (id, name) ->

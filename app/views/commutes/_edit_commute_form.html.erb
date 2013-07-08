@@ -17,16 +17,7 @@
     <div class="control-group">
       <label class="control-label">Who else went?</label>
       <div class="controls">
-        <div data-bind="foreach: participations">
-          <label data-bind="visible: !$parent.advancedModeEnabled()">
-            <input type="checkbox" data-bind="checked: controller().didGo, enable: isNotDriver">
-            <span data-bind="text: user.name"></span>
-          </label>
-          <div data-bind="visible: $parent.advancedModeEnabled">
-            <input type="checkbox" data-bind="checked: controller().didGoTo, enable: isNotDriver">
-            <input type="checkbox" data-bind="checked: controller().didGoFrom, enable: isNotDriver">
-            <span data-bind="text: user.name"></span>
-          </div>
+        <div data-bind="template: { name: getTemplateNameForParticipation, foreach: participations }">
         </div>
         <a href="#" data-bind="click: toggleMode, visible: !advancedModeEnabled()">Advanced mode</a>
         <a href="#" data-bind="click: toggleMode, visible: advancedModeEnabled">Basic mode</a>
@@ -40,5 +31,20 @@
     </div>
   </div>
 <% end %>
+
+<script type="text/html" id="participation-simple-template">
+  <label>
+    <input type="checkbox" data-bind="checked: controller().didGo, enable: isNotDriver">
+    <span data-bind="text: user.name"></span>
+  </label>
+</script>
+
+<script type="text/html" id="participation-advanced-template">
+  <div>
+    <input type="checkbox" data-bind="checked: controller().didGoTo, enable: isNotDriver">
+    <input type="checkbox" data-bind="checked: controller().didGoFrom, enable: isNotDriver">
+    <span data-bind="text: user.name"></span>
+  </div>
+</script>
 
 <%= javascript_tag 'initCommuteForm();' %>
