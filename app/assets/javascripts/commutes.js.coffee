@@ -71,7 +71,10 @@ class CarEntry
   # Event Handlers
 
   toggleMode: () ->
-    this.advancedModeEnabled(!this.advancedModeEnabled())
+    switchMode(!this.advancedModeEnabled())
+
+  switchMode: (advanced) ->
+    this.advancedModeEnabled(advanced)
     p.switchMode(this.advancedModeEnabled()) for p in this.participations()
 
   # Public Methods
@@ -116,21 +119,12 @@ class Participation
     this.isNotDriver = ko.computed(() => !this.isDriver())
 
     this.controller = ko.observable(new ParticipationAdvanced(this))
-#    this.didGoTo   = ko.observable().extend(blockedRead: {blocker: this.isDriver})
-#    this.didGoFrom = ko.observable().extend(blockedRead: {blocker: this.isDriver})
-#
-#    this.didGo     = ko.computed(
-#      read: () => this.didGoTo() || this.didGoFrom()
-#      write: (value) =>
-#        this.didGoTo(value)
-#        this.didGoFrom(value)
-#    ).extend(blockedRead: {blocker: this.isDriver})
 
   # Public Methods
 
   populate: (data) ->
     if data.went_to != data.went_from
-      this.switchMode(true)
+      this.carEntry.switchMode(true)
     this.controller().didGoTo(data.went_to)
     this.controller().didGoFrom(data.went_from)
     

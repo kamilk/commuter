@@ -28,21 +28,21 @@ class DaySummary
     @date
   end
 
-  def get_driver_for(user)
-    commute = get_commute_for(user)
+  def get_driver_for(user, direction)
+    commute = get_commute_for(user, direction)
     return commute.nil? ? nil : commute.driver
   end
 
-  def get_commute_for(user)
+  def get_commute_for(user, direction)
     @commutes.each do |commute|
-      return commute if commute.user_went? user
+      return commute if commute.user_went?(user, direction)
     end
 
     return nil
   end
 
   def user_went?(user, direction)
-    commute = get_commute_for(user)
+    commute = get_commute_for(user, direction)
     return false if commute.nil?
     return commute.user_went?(user, direction)
   end
