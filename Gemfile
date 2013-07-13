@@ -11,7 +11,6 @@ gem 'bootstrap-sass'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'dynamic_form'
-gem 'debugger'
 
 # Gems used only for assets and not required
 # in production environments by default.

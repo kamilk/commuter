@@ -4,6 +4,6 @@
       style='background-color: <%= day_summary.get_driver_for(user, direction).colour %>'
     <% end %>
   >
-    <%= day_summary.user_went?(user, direction).nil? ? '0': '1' %>
+    <%= day_summary.user_went?(user, direction) ? '1': '0' %>
   </td>
 <% end %>
