@@ -121,7 +121,7 @@ class Participation
     )
     this.isNotDriver = ko.computed(() => !this.isDriver())
 
-    this.controller = ko.observable(new ParticipationAdvanced(this))
+    this.controller = ko.observable(new ParticipationSimple(this))
 
   # Public Methods
 
